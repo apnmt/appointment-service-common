@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>de.apnmt.common</groupId>
+		<artifactId>apnmt-common</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>de.apnmt.appointment</groupId>
+	<artifactId>appointment-service-common</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Appointment Service Common</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>de.apnmt.common</groupId>
+			<artifactId>apnmt-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<version>2.4.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+			<!-- Inherited version from Spring Boot can't be used because of regressions -->
+			<version>${liquibase.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.liquibase</groupId>
+					<artifactId>liquibase-maven-plugin</artifactId>
+					<version>${liquibase.version}</version>
+					<configuration>
+						<changeLogFile>${project.basedir}/src/main/resources/config/liquibase/master.xml</changeLogFile>
+						<diffChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
+						<driver></driver>
+						<url></url>
+						<defaultSchemaName></defaultSchemaName>
+						<username>AppointmentService</username>
+						<password></password>
+						<referenceUrl>hibernate:spring:de.apnmt.appointment.domain?dialect=&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+						<verbose>true</verbose>
+						<logging>debug</logging>
+						<contexts>!test</contexts>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.liquibase</groupId>
+							<artifactId>liquibase-core</artifactId>
+							<version>${liquibase.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.liquibase.ext</groupId>
+							<artifactId>liquibase-hibernate5</artifactId>
+							<version>${liquibase-hibernate5.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-starter-data-jpa</artifactId>
+							<version>${spring-boot.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>javax.validation</groupId>
+							<artifactId>validation-api</artifactId>
+							<version>${validation-api.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.javassist</groupId>
+							<artifactId>javassist</artifactId>
+							<version>${javassist.version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>
