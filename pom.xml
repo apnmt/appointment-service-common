@@ -2,12 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>de.apnmt.common</groupId>
-		<artifactId>apnmt-common</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
 	<groupId>de.apnmt.appointment</groupId>
 	<artifactId>appointment-service-common</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -15,6 +9,9 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
+		<spring-boot.version>2.4.7</spring-boot.version>
+		<liquibase.version>4.3.5</liquibase.version>
+		<liquibase-hibernate5.version>4.3.5</liquibase-hibernate5.version>
 	</properties>
 	<dependencies>
 		<dependency>
