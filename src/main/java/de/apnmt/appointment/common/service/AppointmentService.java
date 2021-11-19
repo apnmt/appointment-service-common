@@ -3,6 +3,7 @@ package de.apnmt.appointment.common.service;
 import de.apnmt.appointment.common.domain.Appointment;
 import de.apnmt.appointment.common.repository.AppointmentRepository;
 import de.apnmt.appointment.common.service.dto.AppointmentDTO;
+import de.apnmt.appointment.common.service.error.SlotNotAvailableException;
 import de.apnmt.appointment.common.service.mapper.AppointmentMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,10 +42,30 @@ public class AppointmentService {
      * @return the persisted entity.
      */
     public AppointmentDTO save(AppointmentDTO appointmentDTO) {
-        log.debug("Request to save Appointment : {}", appointmentDTO);
-        Appointment appointment = appointmentMapper.toEntity(appointmentDTO);
-        appointment = appointmentRepository.save(appointment);
-        return appointmentMapper.toDto(appointment);
+        this.log.debug("Request to save Appointment : {}", appointmentDTO);
+        Appointment appointment = this.appointmentMapper.toEntity(appointmentDTO);
+        checkAvailability(appointment);
+        appointment = this.appointmentRepository.save(appointment);
+        return this.appointmentMapper.toDto(appointment);
+    }
+
+    private void checkAvailability(Appointment appointment) {
+        Instant start = Instant.now()
+                .atZone(ZoneId.of("Europe/Berlin"))
+                .toLocalDate()
+                .atStartOfDay(ZoneId.of("Europe/Berlin")).toInstant();
+        Instant end = Instant.now()
+                .atZone(ZoneId.of("Europe/Berlin"))
+                .toLocalDate()
+                .plusDays(1)
+                .atStartOfDay(ZoneId.of("Europe/Berlin")).toInstant();
+        List<Appointment> appointments = this.appointmentRepository.findAllByOrganizationIdAndEmployeeIdAndStartAtAfterAndStartAtBefore(appointment.getOrganizationId(), appointment.getEmployeeId(), start, end);
+
+        for (Appointment apnmt : appointments) {
+            if (!(appointment.getStartAt().isAfter(apnmt.getEndAt()) || appointment.getEndAt().isBefore(apnmt.getStartAt()) || appointment.getStartAt().equals(apnmt.getEndAt()) || appointment.getEndAt().equals(apnmt.getStartAt()))) {
+                throw new SlotNotAvailableException();
+            }
+        }
     }
 
     /**
@@ -51,19 +75,19 @@ public class AppointmentService {
      * @return the persisted entity.
      */
     public Optional<AppointmentDTO> partialUpdate(AppointmentDTO appointmentDTO) {
-        log.debug("Request to partially update Appointment : {}", appointmentDTO);
+        this.log.debug("Request to partially update Appointment : {}", appointmentDTO);
 
-        return appointmentRepository
-            .findById(appointmentDTO.getId())
-            .map(
-                existingAppointment -> {
-                    appointmentMapper.partialUpdate(existingAppointment, appointmentDTO);
+        return this.appointmentRepository
+                .findById(appointmentDTO.getId())
+                .map(
+                        existingAppointment -> {
+                            this.appointmentMapper.partialUpdate(existingAppointment, appointmentDTO);
 
-                    return existingAppointment;
-                }
-            )
-            .map(appointmentRepository::save)
-            .map(appointmentMapper::toDto);
+                            return existingAppointment;
+                        }
+                )
+                .map(this.appointmentRepository::save)
+                .map(this.appointmentMapper::toDto);
     }
 
     /**
@@ -74,8 +98,8 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findAll(Pageable pageable) {
-        log.debug("Request to get all Appointments");
-        return appointmentRepository.findAll(pageable).map(appointmentMapper::toDto);
+        this.log.debug("Request to get all Appointments");
+        return this.appointmentRepository.findAll(pageable).map(this.appointmentMapper::toDto);
     }
 
     /**
@@ -86,8 +110,8 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public Optional<AppointmentDTO> findOne(Long id) {
-        log.debug("Request to get Appointment : {}", id);
-        return appointmentRepository.findById(id).map(appointmentMapper::toDto);
+        this.log.debug("Request to get Appointment : {}", id);
+        return this.appointmentRepository.findById(id).map(this.appointmentMapper::toDto);
     }
 
     /**
@@ -96,7 +120,7 @@ public class AppointmentService {
      * @param id the id of the entity.
      */
     public void delete(Long id) {
-        log.debug("Request to delete Appointment : {}", id);
-        appointmentRepository.deleteById(id);
+        this.log.debug("Request to delete Appointment : {}", id);
+        this.appointmentRepository.deleteById(id);
     }
 }
