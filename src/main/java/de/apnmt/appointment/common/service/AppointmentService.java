@@ -12,8 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,15 +50,8 @@ public class AppointmentService {
     }
 
     private void checkAvailability(Appointment appointment) {
-        Instant start = Instant.now()
-                .atZone(ZoneId.of("Europe/Berlin"))
-                .toLocalDate()
-                .atStartOfDay(ZoneId.of("Europe/Berlin")).toInstant();
-        Instant end = Instant.now()
-                .atZone(ZoneId.of("Europe/Berlin"))
-                .toLocalDate()
-                .plusDays(1)
-                .atStartOfDay(ZoneId.of("Europe/Berlin")).toInstant();
+        LocalDateTime start = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime end = start.plusDays(1);
         List<Appointment> appointments = this.appointmentRepository.findAllByOrganizationIdAndEmployeeIdAndStartAtAfterAndStartAtBefore(appointment.getOrganizationId(), appointment.getEmployeeId(), start, end);
 
         for (Appointment apnmt : appointments) {

@@ -4,7 +4,7 @@ import de.apnmt.appointment.common.domain.Appointment;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -12,13 +12,14 @@ import java.util.Objects;
  */
 public class AppointmentDTO implements Serializable {
 
+    private static final long serialVersionUID = 4134112751746993379L;
     private Long id;
 
     @NotNull
-    private Instant startAt;
+    private LocalDateTime startAt;
 
     @NotNull
-    private Instant endAt;
+    private LocalDateTime endAt;
 
     @NotNull
     private Long organizationId;
@@ -31,31 +32,31 @@ public class AppointmentDTO implements Serializable {
     private ServiceDTO service;
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public Instant getStartAt() {
-        return startAt;
+    public LocalDateTime getStartAt() {
+        return this.startAt;
     }
 
-    public void setStartAt(Instant startAt) {
+    public void setStartAt(LocalDateTime startAt) {
         this.startAt = startAt;
     }
 
-    public Instant getEndAt() {
-        return endAt;
+    public LocalDateTime getEndAt() {
+        return this.endAt;
     }
 
-    public void setEndAt(Instant endAt) {
+    public void setEndAt(LocalDateTime endAt) {
         this.endAt = endAt;
     }
 
     public Long getOrganizationId() {
-        return organizationId;
+        return this.organizationId;
     }
 
     public void setOrganizationId(Long organizationId) {
@@ -63,7 +64,7 @@ public class AppointmentDTO implements Serializable {
     }
 
     public Long getEmployeeId() {
-        return employeeId;
+        return this.employeeId;
     }
 
     public void setEmployeeId(Long employeeId) {
@@ -71,7 +72,7 @@ public class AppointmentDTO implements Serializable {
     }
 
     public CustomerDTO getCustomer() {
-        return customer;
+        return this.customer;
     }
 
     public void setCustomer(CustomerDTO customer) {
@@ -79,7 +80,7 @@ public class AppointmentDTO implements Serializable {
     }
 
     public ServiceDTO getService() {
-        return service;
+        return this.service;
     }
 
     public void setService(ServiceDTO service) {
@@ -111,13 +112,13 @@ public class AppointmentDTO implements Serializable {
     @Override
     public String toString() {
         return "AppointmentDTO{" +
-            "id=" + getId() +
-            ", startAt='" + getStartAt() + "'" +
-            ", endAt='" + getEndAt() + "'" +
-            ", organizationId=" + getOrganizationId() +
-            ", employeeId=" + getEmployeeId() +
-            ", customer=" + getCustomer() +
-            ", service=" + getService() +
-            "}";
+                "id=" + getId() +
+                ", startAt='" + getStartAt() + "'" +
+                ", endAt='" + getEndAt() + "'" +
+                ", organizationId=" + getOrganizationId() +
+                ", employeeId=" + getEmployeeId() +
+                ", customer=" + getCustomer() +
+                ", service=" + getService() +
+                "}";
     }
 }
