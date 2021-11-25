@@ -19,7 +19,6 @@ import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -58,21 +57,21 @@ public class AppointmentResource {
      */
     @PostMapping("/appointments")
     public ResponseEntity<AppointmentDTO> createAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO) throws URISyntaxException {
-        log.debug("REST request to save Appointment : {}", appointmentDTO);
+        this.log.debug("REST request to save Appointment : {}", appointmentDTO);
         if (appointmentDTO.getId() != null) {
             throw new BadRequestAlertException("A new appointment cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        AppointmentDTO result = appointmentService.save(appointmentDTO);
+        AppointmentDTO result = this.appointmentService.save(appointmentDTO);
         return ResponseEntity
-            .created(new URI("/api/appointments/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .created(new URI("/api/appointments/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(this.applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PUT  /appointments/:id} : Updates an existing appointment.
      *
-     * @param id the id of the appointmentDTO to save.
+     * @param id             the id of the appointmentDTO to save.
      * @param appointmentDTO the appointmentDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated appointmentDTO,
      * or with status {@code 400 (Bad Request)} if the appointmentDTO is not valid,
@@ -81,10 +80,10 @@ public class AppointmentResource {
      */
     @PutMapping("/appointments/{id}")
     public ResponseEntity<AppointmentDTO> updateAppointment(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody AppointmentDTO appointmentDTO
+            @PathVariable(value = "id", required = false) final Long id,
+            @Valid @RequestBody AppointmentDTO appointmentDTO
     ) throws URISyntaxException {
-        log.debug("REST request to update Appointment : {}, {}", id, appointmentDTO);
+        this.log.debug("REST request to update Appointment : {}, {}", id, appointmentDTO);
         if (appointmentDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -92,51 +91,15 @@ public class AppointmentResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!appointmentRepository.existsById(id)) {
+        if (!this.appointmentRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        AppointmentDTO result = appointmentService.save(appointmentDTO);
+        AppointmentDTO result = this.appointmentService.save(appointmentDTO);
         return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, appointmentDTO.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * {@code PATCH  /appointments/:id} : Partial updates given fields of an existing appointment, field will ignore if it is null
-     *
-     * @param id the id of the appointmentDTO to save.
-     * @param appointmentDTO the appointmentDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated appointmentDTO,
-     * or with status {@code 400 (Bad Request)} if the appointmentDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the appointmentDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the appointmentDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PatchMapping(value = "/appointments/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<AppointmentDTO> partialUpdateAppointment(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody AppointmentDTO appointmentDTO
-    ) throws URISyntaxException {
-        log.debug("REST request to partial update Appointment partially : {}, {}", id, appointmentDTO);
-        if (appointmentDTO.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, appointmentDTO.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!appointmentRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Optional<AppointmentDTO> result = appointmentService.partialUpdate(appointmentDTO);
-
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, appointmentDTO.getId().toString())
-        );
+                .ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(this.applicationName, true, ENTITY_NAME, appointmentDTO.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -147,8 +110,8 @@ public class AppointmentResource {
      */
     @GetMapping("/appointments")
     public ResponseEntity<List<AppointmentDTO>> getAllAppointments(Pageable pageable) {
-        log.debug("REST request to get a page of Appointments");
-        Page<AppointmentDTO> page = appointmentService.findAll(pageable);
+        this.log.debug("REST request to get a page of Appointments");
+        Page<AppointmentDTO> page = this.appointmentService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -161,8 +124,8 @@ public class AppointmentResource {
      */
     @GetMapping("/appointments/{id}")
     public ResponseEntity<AppointmentDTO> getAppointment(@PathVariable Long id) {
-        log.debug("REST request to get Appointment : {}", id);
-        Optional<AppointmentDTO> appointmentDTO = appointmentService.findOne(id);
+        this.log.debug("REST request to get Appointment : {}", id);
+        Optional<AppointmentDTO> appointmentDTO = this.appointmentService.findOne(id);
         return ResponseUtil.wrapOrNotFound(appointmentDTO);
     }
 
@@ -174,11 +137,11 @@ public class AppointmentResource {
      */
     @DeleteMapping("/appointments/{id}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
-        log.debug("REST request to delete Appointment : {}", id);
-        appointmentService.delete(id);
+        this.log.debug("REST request to delete Appointment : {}", id);
+        this.appointmentService.delete(id);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(this.applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

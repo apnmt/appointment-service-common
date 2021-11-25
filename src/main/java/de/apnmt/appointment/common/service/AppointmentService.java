@@ -4,7 +4,13 @@ import de.apnmt.appointment.common.domain.Appointment;
 import de.apnmt.appointment.common.repository.AppointmentRepository;
 import de.apnmt.appointment.common.service.dto.AppointmentDTO;
 import de.apnmt.appointment.common.service.error.SlotNotAvailableException;
+import de.apnmt.appointment.common.service.mapper.AppointmentEventMapper;
 import de.apnmt.appointment.common.service.mapper.AppointmentMapper;
+import de.apnmt.common.TopicConstants;
+import de.apnmt.common.event.ApnmtEvent;
+import de.apnmt.common.event.ApnmtEventType;
+import de.apnmt.common.event.value.AppointmentEventDTO;
+import de.apnmt.common.sender.ApnmtEventSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -30,9 +36,15 @@ public class AppointmentService {
 
     private final AppointmentMapper appointmentMapper;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, AppointmentMapper appointmentMapper) {
+    private final ApnmtEventSender<AppointmentEventDTO> sender;
+
+    private final AppointmentEventMapper appointmentEventMapper;
+
+    public AppointmentService(AppointmentRepository appointmentRepository, AppointmentMapper appointmentMapper, ApnmtEventSender<AppointmentEventDTO> sender, AppointmentEventMapper appointmentEventMapper) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
+        this.sender = sender;
+        this.appointmentEventMapper = appointmentEventMapper;
     }
 
     /**
@@ -46,7 +58,12 @@ public class AppointmentService {
         Appointment appointment = this.appointmentMapper.toEntity(appointmentDTO);
         checkAvailability(appointment);
         appointment = this.appointmentRepository.save(appointment);
+        this.sender.send(TopicConstants.APPOINTMENT_CHANGED_TOPIC, createEvent(appointment, ApnmtEventType.appointmentCreated));
         return this.appointmentMapper.toDto(appointment);
+    }
+
+    private ApnmtEvent<AppointmentEventDTO> createEvent(Appointment appointment, ApnmtEventType type) {
+        return new ApnmtEvent<AppointmentEventDTO>().timestamp(LocalDateTime.now()).type(type).value(this.appointmentEventMapper.toDto(appointment));
     }
 
     private void checkAvailability(Appointment appointment) {
@@ -59,28 +76,6 @@ public class AppointmentService {
                 throw new SlotNotAvailableException();
             }
         }
-    }
-
-    /**
-     * Partially update a appointment.
-     *
-     * @param appointmentDTO the entity to update partially.
-     * @return the persisted entity.
-     */
-    public Optional<AppointmentDTO> partialUpdate(AppointmentDTO appointmentDTO) {
-        this.log.debug("Request to partially update Appointment : {}", appointmentDTO);
-
-        return this.appointmentRepository
-                .findById(appointmentDTO.getId())
-                .map(
-                        existingAppointment -> {
-                            this.appointmentMapper.partialUpdate(existingAppointment, appointmentDTO);
-
-                            return existingAppointment;
-                        }
-                )
-                .map(this.appointmentRepository::save)
-                .map(this.appointmentMapper::toDto);
     }
 
     /**
@@ -114,6 +109,14 @@ public class AppointmentService {
      */
     public void delete(Long id) {
         this.log.debug("Request to delete Appointment : {}", id);
+        Optional<Appointment> maybe = this.appointmentRepository.findById(id);
+        ApnmtEvent<AppointmentEventDTO> event;
+        if (maybe.isPresent()) {
+            event = createEvent(maybe.get(), ApnmtEventType.appointmentDeleted);
+        } else {
+            event = createEvent(new Appointment().id(id), ApnmtEventType.appointmentDeleted);
+        }
+        this.sender.send(TopicConstants.APPOINTMENT_CHANGED_TOPIC, event);
         this.appointmentRepository.deleteById(id);
     }
 }
