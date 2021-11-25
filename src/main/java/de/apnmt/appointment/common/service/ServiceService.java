@@ -2,14 +2,21 @@ package de.apnmt.appointment.common.service;
 
 import de.apnmt.appointment.common.repository.ServiceRepository;
 import de.apnmt.appointment.common.service.dto.ServiceDTO;
+import de.apnmt.appointment.common.service.mapper.ServiceEventMapper;
 import de.apnmt.appointment.common.service.mapper.ServiceMapper;
+import de.apnmt.common.TopicConstants;
+import de.apnmt.common.event.ApnmtEvent;
+import de.apnmt.common.event.ApnmtEventType;
+import de.apnmt.common.event.value.ServiceEventDTO;
+import de.apnmt.common.sender.ApnmtEventSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.*;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -25,9 +32,15 @@ public class ServiceService {
 
     private final ServiceMapper serviceMapper;
 
-    public ServiceService(ServiceRepository serviceRepository, ServiceMapper serviceMapper) {
+    private final ServiceEventMapper serviceEventMapper;
+
+    private final ApnmtEventSender<ServiceEventDTO> sender;
+
+    public ServiceService(ServiceRepository serviceRepository, ServiceMapper serviceMapper, ServiceEventMapper serviceEventMapper, ApnmtEventSender<ServiceEventDTO> sender) {
         this.serviceRepository = serviceRepository;
         this.serviceMapper = serviceMapper;
+        this.serviceEventMapper = serviceEventMapper;
+        this.sender = sender;
     }
 
     /**
@@ -37,10 +50,11 @@ public class ServiceService {
      * @return the persisted entity.
      */
     public ServiceDTO save(ServiceDTO serviceDTO) {
-        log.debug("Request to save Service : {}", serviceDTO);
-        de.apnmt.appointment.common.domain.Service service = serviceMapper.toEntity(serviceDTO);
-        service = serviceRepository.save(service);
-        return serviceMapper.toDto(service);
+        this.log.debug("Request to save Service : {}", serviceDTO);
+        de.apnmt.appointment.common.domain.Service service = this.serviceMapper.toEntity(serviceDTO);
+        service = this.serviceRepository.save(service);
+        this.sender.send(TopicConstants.SERVICE_CHANGED_TOPIC, this.createEvent(service, ApnmtEventType.serviceCreated));
+        return this.serviceMapper.toDto(service);
     }
 
     /**
@@ -50,19 +64,23 @@ public class ServiceService {
      * @return the persisted entity.
      */
     public Optional<ServiceDTO> partialUpdate(ServiceDTO serviceDTO) {
-        log.debug("Request to partially update Service : {}", serviceDTO);
+        this.log.debug("Request to partially update Service : {}", serviceDTO);
 
-        return serviceRepository
-            .findById(serviceDTO.getId())
-            .map(
-                existingService -> {
-                    serviceMapper.partialUpdate(existingService, serviceDTO);
+        return this.serviceRepository
+                .findById(serviceDTO.getId())
+                .map(
+                        existingService -> {
+                            this.serviceMapper.partialUpdate(existingService, serviceDTO);
 
-                    return existingService;
-                }
-            )
-            .map(serviceRepository::save)
-            .map(serviceMapper::toDto);
+                            return existingService;
+                        }
+                )
+                .map(this.serviceRepository::save)
+                .map(service -> {
+                    this.sender.send(TopicConstants.SERVICE_CHANGED_TOPIC, this.createEvent(service, ApnmtEventType.serviceCreated));
+                    return service;
+                })
+                .map(this.serviceMapper::toDto);
     }
 
     /**
@@ -73,8 +91,8 @@ public class ServiceService {
      */
     @Transactional(readOnly = true)
     public Page<ServiceDTO> findAll(Pageable pageable) {
-        log.debug("Request to get all Services");
-        return serviceRepository.findAll(pageable).map(serviceMapper::toDto);
+        this.log.debug("Request to get all Services");
+        return this.serviceRepository.findAll(pageable).map(this.serviceMapper::toDto);
     }
 
     /**
@@ -85,8 +103,8 @@ public class ServiceService {
      */
     @Transactional(readOnly = true)
     public Optional<ServiceDTO> findOne(Long id) {
-        log.debug("Request to get Service : {}", id);
-        return serviceRepository.findById(id).map(serviceMapper::toDto);
+        this.log.debug("Request to get Service : {}", id);
+        return this.serviceRepository.findById(id).map(this.serviceMapper::toDto);
     }
 
     /**
@@ -95,7 +113,19 @@ public class ServiceService {
      * @param id the id of the entity.
      */
     public void delete(Long id) {
-        log.debug("Request to delete Service : {}", id);
-        serviceRepository.deleteById(id);
+        this.log.debug("Request to delete Service : {}", id);
+        Optional<de.apnmt.appointment.common.domain.Service> maybe = this.serviceRepository.findById(id);
+        ApnmtEvent<ServiceEventDTO> event;
+        if (maybe.isPresent()) {
+            event = createEvent(maybe.get(), ApnmtEventType.serviceDeleted);
+        } else {
+            event = createEvent(new de.apnmt.appointment.common.domain.Service().id(id), ApnmtEventType.serviceDeleted);
+        }
+        this.sender.send(TopicConstants.APPOINTMENT_CHANGED_TOPIC, event);
+        this.serviceRepository.deleteById(id);
+    }
+
+    private ApnmtEvent<ServiceEventDTO> createEvent(de.apnmt.appointment.common.domain.Service service, ApnmtEventType type) {
+        return new ApnmtEvent<ServiceEventDTO>().timestamp(LocalDateTime.now()).type(type).value(this.serviceEventMapper.toDto(service));
     }
 }
