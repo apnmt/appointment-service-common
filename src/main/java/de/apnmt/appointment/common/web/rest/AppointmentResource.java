@@ -4,7 +4,7 @@ import de.apnmt.appointment.common.domain.Appointment;
 import de.apnmt.appointment.common.repository.AppointmentRepository;
 import de.apnmt.appointment.common.service.AppointmentService;
 import de.apnmt.appointment.common.service.dto.AppointmentDTO;
-import de.apnmt.appointment.common.web.rest.errors.BadRequestAlertException;
+import de.apnmt.common.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

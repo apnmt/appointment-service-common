@@ -3,10 +3,10 @@ package de.apnmt.appointment.common.service;
 import de.apnmt.appointment.common.domain.Appointment;
 import de.apnmt.appointment.common.repository.AppointmentRepository;
 import de.apnmt.appointment.common.service.dto.AppointmentDTO;
-import de.apnmt.appointment.common.service.error.SlotNotAvailableException;
 import de.apnmt.appointment.common.service.mapper.AppointmentEventMapper;
 import de.apnmt.appointment.common.service.mapper.AppointmentMapper;
 import de.apnmt.common.TopicConstants;
+import de.apnmt.common.errors.HttpError;
 import de.apnmt.common.event.ApnmtEvent;
 import de.apnmt.common.event.ApnmtEventType;
 import de.apnmt.common.event.value.AppointmentEventDTO;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zalando.problem.Status;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -56,9 +57,9 @@ public class AppointmentService {
     public AppointmentDTO save(AppointmentDTO appointmentDTO) {
         this.log.debug("Request to save Appointment : {}", appointmentDTO);
         Appointment appointment = this.appointmentMapper.toEntity(appointmentDTO);
-        checkAvailability(appointment);
+        this.checkAvailability(appointment);
         appointment = this.appointmentRepository.save(appointment);
-        this.sender.send(TopicConstants.APPOINTMENT_CHANGED_TOPIC, createEvent(appointment, ApnmtEventType.appointmentCreated));
+        this.sender.send(TopicConstants.APPOINTMENT_CHANGED_TOPIC, this.createEvent(appointment, ApnmtEventType.appointmentCreated));
         return this.appointmentMapper.toDto(appointment);
     }
 
@@ -73,7 +74,7 @@ public class AppointmentService {
 
         for (Appointment apnmt : appointments) {
             if (!(appointment.getStartAt().isAfter(apnmt.getEndAt()) || appointment.getEndAt().isBefore(apnmt.getStartAt()) || appointment.getStartAt().equals(apnmt.getEndAt()) || appointment.getEndAt().equals(apnmt.getStartAt()))) {
-                throw new SlotNotAvailableException();
+                throw new HttpError(Status.TOO_MANY_REQUESTS, "slot.not.available", "Slot from " + appointment.getStartAt() + " until " + appointment.getEndAt() + " for organization " + appointment.getOrganizationId() + " and employeeId " + appointment.getEmployeeId() + " is not available");
             }
         }
     }
@@ -112,9 +113,9 @@ public class AppointmentService {
         Optional<Appointment> maybe = this.appointmentRepository.findById(id);
         ApnmtEvent<AppointmentEventDTO> event;
         if (maybe.isPresent()) {
-            event = createEvent(maybe.get(), ApnmtEventType.appointmentDeleted);
+            event = this.createEvent(maybe.get(), ApnmtEventType.appointmentDeleted);
         } else {
-            event = createEvent(new Appointment().id(id), ApnmtEventType.appointmentDeleted);
+            event = this.createEvent(new Appointment().id(id), ApnmtEventType.appointmentDeleted);
         }
         this.sender.send(TopicConstants.APPOINTMENT_CHANGED_TOPIC, event);
         this.appointmentRepository.deleteById(id);

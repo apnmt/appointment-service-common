@@ -4,7 +4,7 @@ import de.apnmt.appointment.common.domain.Service;
 import de.apnmt.appointment.common.repository.ServiceRepository;
 import de.apnmt.appointment.common.service.ServiceService;
 import de.apnmt.appointment.common.service.dto.ServiceDTO;
-import de.apnmt.appointment.common.web.rest.errors.BadRequestAlertException;
+import de.apnmt.common.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,14 +58,14 @@ public class ServiceResource {
      */
     @PostMapping("/services")
     public ResponseEntity<ServiceDTO> createService(@Valid @RequestBody ServiceDTO serviceDTO) throws URISyntaxException {
-        log.debug("REST request to save Service : {}", serviceDTO);
+        this.log.debug("REST request to save Service : {}", serviceDTO);
         if (serviceDTO.getId() != null) {
             throw new BadRequestAlertException("A new service cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ServiceDTO result = serviceService.save(serviceDTO);
+        ServiceDTO result = this.serviceService.save(serviceDTO);
         return ResponseEntity
             .created(new URI("/api/services/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(this.applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
@@ -84,7 +84,7 @@ public class ServiceResource {
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody ServiceDTO serviceDTO
     ) throws URISyntaxException {
-        log.debug("REST request to update Service : {}, {}", id, serviceDTO);
+        this.log.debug("REST request to update Service : {}, {}", id, serviceDTO);
         if (serviceDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -92,14 +92,14 @@ public class ServiceResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!serviceRepository.existsById(id)) {
+        if (!this.serviceRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        ServiceDTO result = serviceService.save(serviceDTO);
+        ServiceDTO result = this.serviceService.save(serviceDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, serviceDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(this.applicationName, true, ENTITY_NAME, serviceDTO.getId().toString()))
             .body(result);
     }
 
@@ -119,7 +119,7 @@ public class ServiceResource {
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody ServiceDTO serviceDTO
     ) throws URISyntaxException {
-        log.debug("REST request to partial update Service partially : {}, {}", id, serviceDTO);
+        this.log.debug("REST request to partial update Service partially : {}, {}", id, serviceDTO);
         if (serviceDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -127,15 +127,15 @@ public class ServiceResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!serviceRepository.existsById(id)) {
+        if (!this.serviceRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<ServiceDTO> result = serviceService.partialUpdate(serviceDTO);
+        Optional<ServiceDTO> result = this.serviceService.partialUpdate(serviceDTO);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, serviceDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(this.applicationName, true, ENTITY_NAME, serviceDTO.getId().toString())
         );
     }
 
@@ -147,8 +147,8 @@ public class ServiceResource {
      */
     @GetMapping("/services")
     public ResponseEntity<List<ServiceDTO>> getAllServices(Pageable pageable) {
-        log.debug("REST request to get a page of Services");
-        Page<ServiceDTO> page = serviceService.findAll(pageable);
+        this.log.debug("REST request to get a page of Services");
+        Page<ServiceDTO> page = this.serviceService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -161,8 +161,8 @@ public class ServiceResource {
      */
     @GetMapping("/services/{id}")
     public ResponseEntity<ServiceDTO> getService(@PathVariable Long id) {
-        log.debug("REST request to get Service : {}", id);
-        Optional<ServiceDTO> serviceDTO = serviceService.findOne(id);
+        this.log.debug("REST request to get Service : {}", id);
+        Optional<ServiceDTO> serviceDTO = this.serviceService.findOne(id);
         return ResponseUtil.wrapOrNotFound(serviceDTO);
     }
 
@@ -174,11 +174,11 @@ public class ServiceResource {
      */
     @DeleteMapping("/services/{id}")
     public ResponseEntity<Void> deleteService(@PathVariable Long id) {
-        log.debug("REST request to delete Service : {}", id);
-        serviceService.delete(id);
+        this.log.debug("REST request to delete Service : {}", id);
+        this.serviceService.delete(id);
         return ResponseEntity
             .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(this.applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 }

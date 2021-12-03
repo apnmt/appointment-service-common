@@ -4,7 +4,7 @@ import de.apnmt.appointment.common.domain.Customer;
 import de.apnmt.appointment.common.repository.CustomerRepository;
 import de.apnmt.appointment.common.service.CustomerService;
 import de.apnmt.appointment.common.service.dto.CustomerDTO;
-import de.apnmt.appointment.common.web.rest.errors.BadRequestAlertException;
+import de.apnmt.common.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,14 +58,14 @@ public class CustomerResource {
      */
     @PostMapping("/customers")
     public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CustomerDTO customerDTO) throws URISyntaxException {
-        log.debug("REST request to save Customer : {}", customerDTO);
+        this.log.debug("REST request to save Customer : {}", customerDTO);
         if (customerDTO.getId() != null) {
             throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        CustomerDTO result = customerService.save(customerDTO);
+        CustomerDTO result = this.customerService.save(customerDTO);
         return ResponseEntity
             .created(new URI("/api/customers/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(this.applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
@@ -84,7 +84,7 @@ public class CustomerResource {
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody CustomerDTO customerDTO
     ) throws URISyntaxException {
-        log.debug("REST request to update Customer : {}, {}", id, customerDTO);
+        this.log.debug("REST request to update Customer : {}, {}", id, customerDTO);
         if (customerDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -92,14 +92,14 @@ public class CustomerResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!customerRepository.existsById(id)) {
+        if (!this.customerRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        CustomerDTO result = customerService.save(customerDTO);
+        CustomerDTO result = this.customerService.save(customerDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customerDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(this.applicationName, true, ENTITY_NAME, customerDTO.getId().toString()))
             .body(result);
     }
 
@@ -119,7 +119,7 @@ public class CustomerResource {
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody CustomerDTO customerDTO
     ) throws URISyntaxException {
-        log.debug("REST request to partial update Customer partially : {}, {}", id, customerDTO);
+        this.log.debug("REST request to partial update Customer partially : {}, {}", id, customerDTO);
         if (customerDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -127,15 +127,15 @@ public class CustomerResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!customerRepository.existsById(id)) {
+        if (!this.customerRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<CustomerDTO> result = customerService.partialUpdate(customerDTO);
+        Optional<CustomerDTO> result = this.customerService.partialUpdate(customerDTO);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customerDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(this.applicationName, true, ENTITY_NAME, customerDTO.getId().toString())
         );
     }
 
@@ -147,8 +147,8 @@ public class CustomerResource {
      */
     @GetMapping("/customers")
     public ResponseEntity<List<CustomerDTO>> getAllCustomers(Pageable pageable) {
-        log.debug("REST request to get a page of Customers");
-        Page<CustomerDTO> page = customerService.findAll(pageable);
+        this.log.debug("REST request to get a page of Customers");
+        Page<CustomerDTO> page = this.customerService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -161,8 +161,8 @@ public class CustomerResource {
      */
     @GetMapping("/customers/{id}")
     public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long id) {
-        log.debug("REST request to get Customer : {}", id);
-        Optional<CustomerDTO> customerDTO = customerService.findOne(id);
+        this.log.debug("REST request to get Customer : {}", id);
+        Optional<CustomerDTO> customerDTO = this.customerService.findOne(id);
         return ResponseUtil.wrapOrNotFound(customerDTO);
     }
 
@@ -174,11 +174,11 @@ public class CustomerResource {
      */
     @DeleteMapping("/customers/{id}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
-        log.debug("REST request to delete Customer : {}", id);
-        customerService.delete(id);
+        this.log.debug("REST request to delete Customer : {}", id);
+        this.customerService.delete(id);
         return ResponseEntity
             .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(this.applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 }
