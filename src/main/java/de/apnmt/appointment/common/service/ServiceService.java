@@ -1,5 +1,8 @@
 package de.apnmt.appointment.common.service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import de.apnmt.appointment.common.repository.ServiceRepository;
 import de.apnmt.appointment.common.service.dto.ServiceDTO;
 import de.apnmt.appointment.common.service.mapper.ServiceEventMapper;
@@ -15,9 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Service}.
@@ -66,21 +66,14 @@ public class ServiceService {
     public Optional<ServiceDTO> partialUpdate(ServiceDTO serviceDTO) {
         this.log.debug("Request to partially update Service : {}", serviceDTO);
 
-        return this.serviceRepository
-                .findById(serviceDTO.getId())
-                .map(
-                        existingService -> {
-                            this.serviceMapper.partialUpdate(existingService, serviceDTO);
+        return this.serviceRepository.findById(serviceDTO.getId()).map(existingService -> {
+            this.serviceMapper.partialUpdate(existingService, serviceDTO);
 
-                            return existingService;
-                        }
-                )
-                .map(this.serviceRepository::save)
-                .map(service -> {
-                    this.sender.send(TopicConstants.SERVICE_CHANGED_TOPIC, this.createEvent(service, ApnmtEventType.serviceCreated));
-                    return service;
-                })
-                .map(this.serviceMapper::toDto);
+            return existingService;
+        }).map(this.serviceRepository::save).map(service -> {
+            this.sender.send(TopicConstants.SERVICE_CHANGED_TOPIC, this.createEvent(service, ApnmtEventType.serviceCreated));
+            return service;
+        }).map(this.serviceMapper::toDto);
     }
 
     /**
@@ -117,11 +110,11 @@ public class ServiceService {
         Optional<de.apnmt.appointment.common.domain.Service> maybe = this.serviceRepository.findById(id);
         ApnmtEvent<ServiceEventDTO> event;
         if (maybe.isPresent()) {
-            event = createEvent(maybe.get(), ApnmtEventType.serviceDeleted);
+            event = this.createEvent(maybe.get(), ApnmtEventType.serviceDeleted);
         } else {
-            event = createEvent(new de.apnmt.appointment.common.domain.Service().id(id), ApnmtEventType.serviceDeleted);
+            event = this.createEvent(new de.apnmt.appointment.common.domain.Service().id(id), ApnmtEventType.serviceDeleted);
         }
-        this.sender.send(TopicConstants.APPOINTMENT_CHANGED_TOPIC, event);
+        this.sender.send(TopicConstants.SERVICE_CHANGED_TOPIC, event);
         this.serviceRepository.deleteById(id);
     }
 
