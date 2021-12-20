@@ -11,7 +11,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      GITHUB_USER_REF: ${{ secrets.GH_PACKAGE_REPO_USERNAME }}
+      GITHUB_TOKEN_REF: ${{ secrets.GH_PACKAGE_REPO_PASSWORD }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -20,6 +22,8 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          server-username: GITHUB_USER_REF
+          server-password: GITHUB_TOKEN_REF
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
       - name: Cache
@@ -31,7 +35,7 @@ jobs:
             ~/.m2/wrapper
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B package --file pom.xml -s $GITHUB_WORKSPACE/settings.xml
 
       - name: Publish to GitHub Packages Apache Maven
         run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
