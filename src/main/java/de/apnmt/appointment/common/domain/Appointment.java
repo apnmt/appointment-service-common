@@ -37,7 +37,7 @@ public class Appointment implements Serializable {
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JsonIgnoreProperties(value = {"appointments"}, allowSetters = true)
     private Customer customer;
 

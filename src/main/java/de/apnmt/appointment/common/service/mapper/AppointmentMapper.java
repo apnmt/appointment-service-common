@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
  */
 @Mapper(componentModel = "spring", uses = { CustomerMapper.class, ServiceMapper.class })
 public interface AppointmentMapper extends EntityMapper<AppointmentDTO, Appointment> {
-    @Mapping(target = "customer", source = "customer", qualifiedByName = "id")
+    @Mapping(target = "customer", source = "customer")
     @Mapping(target = "service", source = "service", qualifiedByName = "id")
     AppointmentDTO toDto(Appointment s);
 }
