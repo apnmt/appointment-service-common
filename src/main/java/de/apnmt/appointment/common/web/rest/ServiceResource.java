@@ -154,6 +154,19 @@ public class ServiceResource {
     }
 
     /**
+     * {@code GET  /services/organization/:id} : get all the services.
+     *
+     * @param id the organization id.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of services in body.
+     */
+    @GetMapping("/services/organization/{id}")
+    public ResponseEntity<List<ServiceDTO>> getAllServices(@PathVariable Long id) {
+        this.log.debug("REST request to get a page of Services");
+        List<ServiceDTO> services = this.serviceService.findAll(id);
+        return ResponseEntity.ok().body(services);
+    }
+
+    /**
      * {@code GET  /services/:id} : get the "id" service.
      *
      * @param id the id of the serviceDTO to retrieve.

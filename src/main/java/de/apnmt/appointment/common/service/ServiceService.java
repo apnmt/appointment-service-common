@@ -1,7 +1,9 @@
 package de.apnmt.appointment.common.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import de.apnmt.appointment.common.repository.ServiceRepository;
 import de.apnmt.appointment.common.service.dto.ServiceDTO;
@@ -86,6 +88,18 @@ public class ServiceService {
     public Page<ServiceDTO> findAll(Pageable pageable) {
         this.log.debug("Request to get all Services");
         return this.serviceRepository.findAll(pageable).map(this.serviceMapper::toDto);
+    }
+
+    /**
+     * Get all the services by organizationId.
+     *
+     * @param organizationId the organization id.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<ServiceDTO> findAll(Long organizationId) {
+        this.log.debug("Request to get all Services for Organization {}", organizationId);
+        return this.serviceRepository.findAllByOrganizationId(organizationId).stream().map(this.serviceMapper::toDto).collect(Collectors.toList());
     }
 
     /**
