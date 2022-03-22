@@ -11,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link Customer}.
@@ -76,6 +78,18 @@ public class CustomerService {
     public Page<CustomerDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Customers");
         return customerRepository.findAll(pageable).map(customerMapper::toDto);
+    }
+
+    /**
+     * Get all the customers by organizationId.
+     *
+     * @param organizationId the organization id.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<CustomerDTO> findAll(Long organizationId) {
+        this.log.debug("Request to get all Services for Organization {}", organizationId);
+        return this.customerRepository.findAllByOrganizationId(organizationId).stream().map(this.customerMapper::toDto).collect(Collectors.toList());
     }
 
     /**

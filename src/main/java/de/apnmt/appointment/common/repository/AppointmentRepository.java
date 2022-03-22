@@ -16,4 +16,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findAllByOrganizationIdAndEmployeeIdAndStartAtAfterAndStartAtBefore(Long organizationId, Long employeeId, LocalDateTime start, LocalDateTime end);
 
+    List<Appointment> findAllByOrganizationIdAndStartAtAfterAndStartAtBefore(Long organizationId, LocalDateTime start, LocalDateTime end);
+
 }

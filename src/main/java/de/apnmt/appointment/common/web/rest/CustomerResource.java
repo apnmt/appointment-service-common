@@ -154,6 +154,19 @@ public class CustomerResource {
     }
 
     /**
+     * {@code GET  /customers/organization/:id} : get all the customers.
+     *
+     * @param id the organization id.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of customers in body.
+     */
+    @GetMapping("/customers/organization/{id}")
+    public ResponseEntity<List<CustomerDTO>> getAllServices(@PathVariable Long id) {
+        this.log.debug("REST request to get a list of Customers");
+        List<CustomerDTO> customers = this.customerService.findAll(id);
+        return ResponseEntity.ok().body(customers);
+    }
+
+    /**
      * {@code GET  /customers/:id} : get the "id" customer.
      *
      * @param id the id of the customerDTO to retrieve.

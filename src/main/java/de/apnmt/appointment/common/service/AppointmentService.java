@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link Appointment}.
@@ -89,6 +90,33 @@ public class AppointmentService {
     public Page<AppointmentDTO> findAll(Pageable pageable) {
         this.log.debug("Request to get all Appointments");
         return this.appointmentRepository.findAll(pageable).map(this.appointmentMapper::toDto);
+    }
+
+    /**
+     * Get all the appointments for Employee and Organization.
+     *
+     * @param organizationId the id of the Organization.
+     * @param employeeId     the id of the Employee.
+     * @param start          start Date.
+     * @param end            the end Date.
+     * @return the list of entities.
+     */
+    public List<AppointmentDTO> findAllForOrganizationAndEmployee(Long organizationId, Long employeeId, LocalDateTime start, LocalDateTime end) {
+        this.log.debug("Request to get all Appointments for Organization {}, Employee {}, between {} and {}", organizationId, employeeId, start, end);
+        return this.appointmentRepository.findAllByOrganizationIdAndEmployeeIdAndStartAtAfterAndStartAtBefore(organizationId, employeeId, start, end).stream().map(this.appointmentMapper::toDto).collect(Collectors.toList());
+    }
+
+    /**
+     * Get all the appointments for Organization.
+     *
+     * @param organizationId the id of the Organization.
+     * @param start          start Date.
+     * @param end            the end Date.
+     * @return the list of entities.
+     */
+    public List<AppointmentDTO> findAllForOrganization(Long organizationId, LocalDateTime start, LocalDateTime end) {
+        this.log.debug("Request to get all Appointments for Organization {}, between {} and {}", organizationId, start, end);
+        return this.appointmentRepository.findAllByOrganizationIdAndStartAtAfterAndStartAtBefore(organizationId, start, end).stream().map(this.appointmentMapper::toDto).collect(Collectors.toList());
     }
 
     /**

@@ -161,7 +161,7 @@ public class ServiceResource {
      */
     @GetMapping("/services/organization/{id}")
     public ResponseEntity<List<ServiceDTO>> getAllServices(@PathVariable Long id) {
-        this.log.debug("REST request to get a page of Services");
+        this.log.debug("REST request to get a list of Services");
         List<ServiceDTO> services = this.serviceService.findAll(id);
         return ResponseEntity.ok().body(services);
     }

@@ -21,6 +21,7 @@ import tech.jhipster.web.util.ResponseUtil;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -114,6 +115,37 @@ public class AppointmentResource {
         Page<AppointmentDTO> page = this.appointmentService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /appointments/organization/:organizationId/employee/:employeeId} : get all the appointments for Employee and Organization.
+     *
+     * @param organizationId the id of the Organization.
+     * @param employeeId     the id of the Employee.
+     * @param start          start Date.
+     * @param end            the end Date.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of appointments in body.
+     */
+    @GetMapping("/appointments/organization/{organizationId}/employee/{employeeId}")
+    public ResponseEntity<List<AppointmentDTO>> getAllAppointments(@PathVariable Long organizationId, @PathVariable Long employeeId, @RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
+        this.log.debug("Request to get all Appointments for Organization {}, Employee {}, between {} and {}", organizationId, employeeId, start, end);
+        List<AppointmentDTO> appointments = this.appointmentService.findAllForOrganizationAndEmployee(organizationId, employeeId, start, end);
+        return ResponseEntity.ok().body(appointments);
+    }
+
+    /**
+     * {@code GET  /appointments/organization/:organizationId} : get all the appointments for Organization.
+     *
+     * @param organizationId the id of the Organization.
+     * @param start          start Date.
+     * @param end            the end Date.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of appointments in body.
+     */
+    @GetMapping("/appointments/organization/{organizationId}")
+    public ResponseEntity<List<AppointmentDTO>> getAllAppointments(@PathVariable Long organizationId, @RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
+        this.log.debug("Request to get all Appointments for Organization {}, between {} and {}", organizationId, start, end);
+        List<AppointmentDTO> appointments = this.appointmentService.findAllForOrganization(organizationId, start, end);
+        return ResponseEntity.ok().body(appointments);
     }
 
     /**
