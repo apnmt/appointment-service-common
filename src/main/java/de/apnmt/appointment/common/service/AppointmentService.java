@@ -69,7 +69,7 @@ public class AppointmentService {
     }
 
     private void checkAvailability(Appointment appointment) {
-        LocalDateTime start = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime start = appointment.getStartAt().truncatedTo(ChronoUnit.DAYS);
         LocalDateTime end = start.plusDays(1);
         List<Appointment> appointments = this.appointmentRepository.findAllByOrganizationIdAndEmployeeIdAndStartAtAfterAndStartAtBefore(appointment.getOrganizationId(), appointment.getEmployeeId(), start, end);
 
