@@ -1,11 +1,20 @@
 id;name;description;duration;cost;organization_id
-1;Wooden collaborative system;Grocery leverage;71640;62093;5552
-2;Metal PCI Tuna;Computers;19181;85190;12372
-3;Bahamas See payment;plum Sleek;40769;97454;69371
-4;Squares Bedfordshire;responsive;30774;79413;90932
-5;Consultant North;circuit;33514;66861;49585
-6;frictionless;auxiliary;9617;66385;78122
-7;teal;cultivate;21462;50372;75385
-8;Account SDD Center;SAS;24452;33439;63499
-9;Optimization array fuchsia;digital;30207;87373;50887
-10;Graphical;Small;20743;36938;15527
+1;Service_1;This is Service_1;30;15.0;1
+2;Service_2;This is Service_2;15;15.0;1
+3;Service_3;This is Service_3;30;15.0;3
+4;Service_4;This is Service_4;15;15.0;3
+5;Service_5;This is Service_5;30;15.0;5
+6;Service_6;This is Service_6;15;15.0;5
+7;Service_7;This is Service_7;30;15.0;8
+8;Service_8;This is Service_8;15;15.0;8
+9;Service_9;This is Service_9;30;15.0;10
+10;Service_10;This is Service_10;15;15.0;10
+11;Service_11;This is Service_11;30;15.0;11
+12;Service_12;This is Service_12;15;15.0;11
+13;Service_13;This is Service_13;30;15.0;13
+14;Service_14;This is Service_14;15;15.0;13
+15;Service_15;This is Service_15;30;15.0;15
+16;Service_16;This is Service_16;15;15.0;15
+17;Service_17;This is Service_17;30;15.0;17
+18;Service_18;This is Service_18;15;15.0;19
+19;Service_19;This is Service_19;30;15.0;20
