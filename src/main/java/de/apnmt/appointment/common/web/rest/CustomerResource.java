@@ -190,8 +190,22 @@ public class CustomerResource {
         this.log.debug("REST request to delete Customer : {}", id);
         this.customerService.delete(id);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(this.applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(this.applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
+    }
+
+    /**
+     * {@code DELETE  /customers} : delete all customers.
+     *
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/customers")
+    public ResponseEntity<Void> deleteCustomers() {
+        this.log.debug("REST request to delete all Customers");
+        this.customerService.deleteAll();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

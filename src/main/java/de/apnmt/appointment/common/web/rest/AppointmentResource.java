@@ -176,4 +176,18 @@ public class AppointmentResource {
                 .headers(HeaderUtil.createEntityDeletionAlert(this.applicationName, true, ENTITY_NAME, id.toString()))
                 .build();
     }
+
+    /**
+     * {@code DELETE  /appointments} : delete all appointments.
+     *
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/appointments")
+    public ResponseEntity<Void> deleteAppointments() {
+        this.log.debug("REST request to delete all Appointments");
+        this.appointmentService.deleteAll();
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
 }

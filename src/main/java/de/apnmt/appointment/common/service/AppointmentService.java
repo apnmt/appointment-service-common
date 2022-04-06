@@ -148,4 +148,12 @@ public class AppointmentService {
         this.sender.send(TopicConstants.APPOINTMENT_CHANGED_TOPIC, event);
         this.appointmentRepository.deleteById(id);
     }
+
+    /**
+     * Delete all appointments.
+     */
+    public void deleteAll() {
+        log.debug("Request to delete all Customers");
+        appointmentRepository.deleteAll();
+    }
 }

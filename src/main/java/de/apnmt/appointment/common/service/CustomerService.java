@@ -113,4 +113,12 @@ public class CustomerService {
         log.debug("Request to delete Customer : {}", id);
         customerRepository.deleteById(id);
     }
+
+    /**
+     * Delete all customers.
+     */
+    public void deleteAll() {
+        log.debug("Request to delete all Customers");
+        customerRepository.deleteAll();
+    }
 }
