@@ -15,4 +15,6 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
 
     List<Service> findAllByOrganizationId(Long organizationId);
 
+    void deleteAllByIdGreaterThan(Long id);
+
 }

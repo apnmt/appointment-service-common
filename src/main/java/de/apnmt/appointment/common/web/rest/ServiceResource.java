@@ -190,8 +190,22 @@ public class ServiceResource {
         this.log.debug("REST request to delete Service : {}", id);
         this.serviceService.delete(id);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(this.applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(this.applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
+    }
+
+    /**
+     * {@code DELETE  /services} : delete all services.
+     *
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/services")
+    public ResponseEntity<Void> deleteServices() {
+        this.log.debug("REST request to delete all services");
+        this.serviceService.deleteAll();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

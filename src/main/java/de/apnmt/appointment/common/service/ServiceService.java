@@ -1,10 +1,5 @@
 package de.apnmt.appointment.common.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import de.apnmt.appointment.common.repository.ServiceRepository;
 import de.apnmt.appointment.common.service.dto.ServiceDTO;
 import de.apnmt.appointment.common.service.mapper.ServiceEventMapper;
@@ -20,6 +15,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link Service}.
@@ -134,5 +134,13 @@ public class ServiceService {
 
     private ApnmtEvent<ServiceEventDTO> createEvent(de.apnmt.appointment.common.domain.Service service, ApnmtEventType type) {
         return new ApnmtEvent<ServiceEventDTO>().timestamp(LocalDateTime.now()).type(type).value(this.serviceEventMapper.toDto(service));
+    }
+
+    /**
+     * Delete all services.
+     */
+    public void deleteAll() {
+        log.debug("Request to delete all services");
+        serviceRepository.deleteAllByIdGreaterThan(502L);
     }
 }
